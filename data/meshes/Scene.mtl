@@ -1,0 +1,5 @@
+newmtl wire_115115115
+map_Kd WoodFloorColor.jpg
+map_Ks WoodFloorRoughness.jpg
+d 1.000000
+illum 2

@@ -1,0 +1,9 @@
+# Blender MTL File: 'Scene.blend'
+# Material Count: 1
+
+newmtl BreadMaterial
+map_Ka ../Asset/Bread/Color.jpg
+map_Kd ../Asset/Bread/Color.jpg
+map_norm ../Asset/Bread/Normal.jpg
+map_Pm ../Asset/Bread/Metalness.jpg
+map_Pr ../Asset/Bread/Roughness.jpg
