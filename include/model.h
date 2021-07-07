@@ -1,4 +1,8 @@
 #pragma once
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <vector>
 #include "mesh.h"
 #include "material.h"
@@ -31,13 +35,18 @@ namespace gl {
 			}
 		}
 
+		Mesh GetMesh(unsigned i)
+		{
+			return meshes[i];
+		}
+
 	private:
 		void ParseMaterial(const tinyobj::material_t& material)
 		{
 			Material mat{};
 			std::string path = "../data/textures/";
 			mat.color = Texture(path + material.diffuse_texname);
-			mat.specular = Texture(path + material.roughness_texname);
+			mat.specular = Texture(path + material.specular_texname);
 			//mat.specular_strength = 2.0f;
 			mat.specular_pow = material.shininess;
 			mat.specular_vec = glm::vec3(material.specular[0], material.specular[1], material.specular[2]);
@@ -86,5 +95,10 @@ namespace gl {
 			// give textures / load texture
 			meshes.emplace_back(vertices, indices, material_id);
 		}
+
+		/*Mesh GetMesh(unsigned i)
+		{
+			return meshes[i];
+		}*/
 	};
 }

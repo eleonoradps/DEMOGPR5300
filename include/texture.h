@@ -21,9 +21,7 @@ namespace gl {
 				0);
 			assert(dataDiffuse);
 			glGenTextures(1, &id);
-			IsError(__FILE__, __LINE__);
 			glBindTexture(GL_TEXTURE_2D, id);
-			IsError(__FILE__, __LINE__);
 			if (nrChannels == 1)
 			{
 				glTexImage2D(
@@ -36,7 +34,6 @@ namespace gl {
 					GL_RED,
 					GL_UNSIGNED_BYTE,
 					dataDiffuse);
-				IsError(__FILE__, __LINE__);
 			}
 			if (nrChannels == 3)
 			{
@@ -50,7 +47,6 @@ namespace gl {
 					GL_RGB,
 					GL_UNSIGNED_BYTE,
 					dataDiffuse);
-				IsError(__FILE__, __LINE__);
 			}
 			if (nrChannels == 4)
 			{
@@ -64,26 +60,19 @@ namespace gl {
 					GL_RGBA,
 					GL_UNSIGNED_BYTE,
 					dataDiffuse);
-				IsError(__FILE__, __LINE__);
 			}
 			glTexParameteri(
 				GL_TEXTURE_2D,
 				GL_TEXTURE_WRAP_S,
 				GL_MIRRORED_REPEAT);
-			IsError(__FILE__, __LINE__);
 			glTexParameteri(
 				GL_TEXTURE_2D,
 				GL_TEXTURE_WRAP_T,
 				GL_MIRRORED_REPEAT);
-			IsError(__FILE__, __LINE__);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			IsError(__FILE__, __LINE__);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			IsError(__FILE__, __LINE__);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			IsError(__FILE__, __LINE__);
 			glBindTexture(GL_TEXTURE_2D, 0);
-			IsError(__FILE__, __LINE__);
 		}
 		void Bind(unsigned int i = 0) const
 		{

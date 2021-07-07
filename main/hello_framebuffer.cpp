@@ -29,9 +29,6 @@ namespace gl {
 		void DrawImGui() override;
 
 	protected:
-		/*unsigned int vao_;
-		unsigned int vbo_;
-		unsigned int ebo_;*/
 		void SetModelMatrix(seconds dt);
 		void SetViewMatrix(seconds dt);
 		void SetProjectionMatrix();
@@ -51,10 +48,7 @@ namespace gl {
 		float delta_time_ = 0.0f;
 
 		std::unique_ptr<Camera> camera_ = nullptr;
-		/*std::unique_ptr<Texture> texture_diffuse_ = nullptr;
-		std::unique_ptr<Texture> texture_specular_ = nullptr;*/
 		std::unique_ptr<Shader> shaders_ = nullptr;
-		//std::unique_ptr<Mesh> mesh_ = nullptr;
 		std::unique_ptr<Model> model_obj_ = nullptr;
 		std::unique_ptr<Framebuffer> framebuffer_ = nullptr;
 		std::unique_ptr<Shader> framebufferShader_ = nullptr;
@@ -89,30 +83,19 @@ namespace gl {
 
 
 		std::string path = "../";
-		model_obj_ = std::make_unique<Model>(path + "data/meshes/SceneFred.obj");
-		/*texture_diffuse_ = std::make_unique<Texture>(
-			path + "data/textures/WoodFloorColor.jpg");
-		texture_specular_ = std::make_unique<Texture>(
-			path + "data/textures/WoodFloorRoughness.jpg");*/
+		model_obj_ = std::make_unique<Model>(path + "data/meshes/planet.obj");
 
 		shaders_ = std::make_unique<Shader>(
-			path + "data/shaders/hello_model/model.vert",
-			path + "data/shaders/hello_model/model.frag");
+			path + "data/shaders/hello_scene/model.vert",
+			path + "data/shaders/hello_scene/model.frag");
 
 		framebufferShader_ = std::make_unique<Shader>(
-			path + "data/shaders/hello_framebuffer/framebuffer.vert",
-			path + "data/shaders/hello_framebuffer/framebuffer.frag");
+			path + "data/shaders/hello_scene/framebuffer.vert",
+			path + "data/shaders/hello_scene/framebuffer.frag");
 
 		skyboxShader_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/cubemaps.vert",
 			path + "data/shaders/hello_scene/cubemaps.frag");
-
-		//// Bind uniform to program.
-		//shaders_->Use();
-		//texture_diffuse_->Bind(0);
-		//shaders_->SetInt("Diffuse", 0);
-		//texture_specular_->Bind(1);
-		//shaders_->SetInt("Specular", 1);
 
 		glClearColor(0.82352941f, 0.63137255f, 0.81568627f, 1.0f);
 	}
@@ -150,9 +133,6 @@ namespace gl {
 	{
 		framebuffer_->Bind();
 
-		delta_time_ = dt.count();
-		time_ += delta_time_;
-
 		SetViewMatrix(dt);
 		SetModelMatrix(dt);
 		SetProjectionMatrix();
@@ -183,6 +163,7 @@ namespace gl {
 		skyboxShader_->SetMat4("view", view);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		// Framebuffer
 		framebuffer_->Unbind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		framebufferShader_->Use();
@@ -190,11 +171,6 @@ namespace gl {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, framebuffer_->GetColorBuffer());
 		framebuffer_->Draw();
-		/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_->ebo_);
-		glBindVertexArray(mesh_->vao_);
-		glDrawElements(GL_TRIANGLES, mesh_->nb_vertices_, GL_UNSIGNED_INT, 0);*/
-
-		
 	}
 
 	void HelloModel::Destroy()
@@ -252,3 +228,142 @@ int main(int argc, char** argv)
 	engine.Run();
 	return EXIT_SUCCESS;
 }
+
+
+//void MaFonction() {
+//
+//}
+//
+//int MaFonction2() {
+//	return 0;
+//}
+//
+//std::string MaFonction3() {
+//	return "";
+//}
+//
+//std::vector<int> MaFonction4() {
+//	return std::vector<int>(10);
+//}
+//
+//class MaClass {
+//public:
+//	void MaMethode(int parama1); //déclaration
+//
+//	std::unique_ptr<float> MaMethode2();
+//};
+// 
+//void MaClass::MaMethode(int param1) { //définition
+//	MaMethode2(); //Appel de fonction
+//	std::unique_ptr<float> maVariable = MaMethode2();
+//
+//	if (*maVariable > 5.0f) {
+//
+//	}
+//
+//	std::cout << maVariable << "\n";
+//}
+//
+///*
+//*  TypeDeRetour NomDeFonction(Paramètre) 
+//*/
+//std::unique_ptr<float> MaClass::MaMethode2() {
+//	return std::make_unique<float>(2.0f);
+//}
+//
+///**
+//* Différence Stack et la Heap
+//* 1. La heap est dynamic | La stack static
+//* 2. La stack a une mémoire plus petite que la heap. C'est dans la RAM
+//* 3. La stack est plus rapide que la heap
+//*/
+//
+//#include <list>
+//
+//int a = 0;  //Stack
+//float b = 0.0f; // Stack
+//
+//MaClass maClass; //Stack
+//std::unique_ptr<MaClass> ptrMaClass;//MaCLass -> Heap. ptr -> Stack
+//
+//std::unique_ptr<int> ptrInt; //int -> heap. ptr -> Stack
+//
+//std::vector<int> vecInts; //tous les ints -> heap. std::vector -> Stack
+//
+//std::array<int, 10> arrInts; //Tous les nits -> stacks. std::array -> Stack
+//
+//std::list<int> listInst; //tous les ints ->heap. std::list -> Stack
+//
+//std::unique_ptr<std::vector<int>> ptrVecInts; //TOus les ints -> Heap, std::vector -> heap, ptr -> stack
+//
+//std::string s; //Chars -> heap, 
+//
+//
+//
+//void MaFonction() {
+//
+//}
+//
+//int MaFonction2() {
+//	return 0;
+//}
+//
+//std::string MaFonction3() {
+//	return "";
+//}
+//
+//std::vector<int> MaFonction4() {
+//	return std::vector<int>(10);
+//}
+//
+//class MaClass {
+//public:
+//	void MaMethode(int parama1); //déclaration
+//
+//	std::unique_ptr<float> MaMethode2();
+//};
+//
+//void MaClass::MaMethode(int param1) { //définition
+//	MaMethode2(); //Appel de fonction
+//	std::unique_ptr<float> maVariable = MaMethode2();
+//
+//	if (*maVariable > 5.0f) {
+//
+//	}
+//
+//	std::cout << maVariable << "\n";
+//}
+//
+///*
+//*  TypeDeRetour NomDeFonction(Paramètre)
+//*/
+//std::unique_ptr<float> MaClass::MaMethode2() {
+//	return std::make_unique<float>(2.0f);
+//}
+//
+///**
+//* Différence Stack et la Heap
+//* 1. La heap est dynamic | La stack static
+//* 2. La stack a une mémoire plus petite que la heap. C'est dans la RAM
+//* 3. La stack est plus rapide que la heap
+//*/
+//
+//#include <list>
+//
+//int a = 0;  //Stack
+//float b = 0.0f; // Stack
+//
+//MaClass maClass; //Stack
+//std::unique_ptr<MaClass> ptrMaClass;//MaCLass -> Heap. ptr -> Stack
+//
+//std::unique_ptr<int> ptrInt; //int -> heap. ptr -> Stack
+//
+//std::vector<int> vecInts; //tous les ints -> heap. std::vector -> Stack
+//
+//std::array<int, 10> arrInts; //Tous les nits -> stacks. std::array -> Stack
+//
+//std::list<int> listInst; //tous les ints ->heap. std::list -> Stack
+//
+//std::unique_ptr<std::vector<int>> ptrVecInts; //TOus les ints -> Heap, std::vector -> heap, ptr -> stack
+//
+//std::string s; //Chars -> heap, 

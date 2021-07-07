@@ -109,6 +109,12 @@ namespace gl {
             glBindVertexArray(0);
         }
 
+        unsigned GetVAO() const
+        {
+            return vao_;
+        }
+
+
     protected:
         void IsError(const std::string& file, int line)
         {

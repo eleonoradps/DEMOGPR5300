@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "framebuffer.h"
+#include "cubemaps.h"
 #include "engine.h"
 #include "camera.h"
 #include "texture.h"
@@ -28,9 +29,6 @@ namespace gl {
 		void DrawImGui() override;
 
 	protected:
-		/*unsigned int vao_;
-		unsigned int vbo_;
-		unsigned int ebo_;*/
 		void SetModelMatrix(seconds dt);
 		void SetViewMatrix(seconds dt);
 		void SetProjectionMatrix();
@@ -50,13 +48,12 @@ namespace gl {
 		float delta_time_ = 0.0f;
 
 		std::unique_ptr<Camera> camera_ = nullptr;
-		/*std::unique_ptr<Texture> texture_diffuse_ = nullptr;
-		std::unique_ptr<Texture> texture_specular_ = nullptr;*/
 		std::unique_ptr<Shader> shaders_ = nullptr;
-		//std::unique_ptr<Mesh> mesh_ = nullptr;
 		std::unique_ptr<Model> model_obj_ = nullptr;
 		std::unique_ptr<Framebuffer> framebuffer_ = nullptr;
 		std::unique_ptr<Shader> framebufferShader_ = nullptr;
+		std::unique_ptr<Shader> skyboxShader_ = nullptr;
+		std::unique_ptr<Cubemaps> cubemaps_ = nullptr;
 
 		glm::mat4 model_ = glm::mat4(1.0f);
 		glm::mat4 view_ = glm::mat4(1.0f);
@@ -82,29 +79,23 @@ namespace gl {
 		glEnable(GL_DEPTH_TEST);
 		camera_ = std::make_unique<Camera>(glm::vec3(.0f, .0f, 30.0f));
 		framebuffer_ = std::make_unique<Framebuffer>();
+		cubemaps_ = std::make_unique<Cubemaps>();
 
 
 		std::string path = "../";
-		model_obj_ = std::make_unique<Model>(path + "data/meshes/SceneFred.obj");
-		/*texture_diffuse_ = std::make_unique<Texture>(
-			path + "data/textures/WoodFloorColor.jpg");
-		texture_specular_ = std::make_unique<Texture>(
-			path + "data/textures/WoodFloorRoughness.jpg");*/
+		model_obj_ = std::make_unique<Model>(path + "data/meshes/planet.obj");
 
 		shaders_ = std::make_unique<Shader>(
-			path + "data/shaders/hello_model/model.vert",
-			path + "data/shaders/hello_model/model.frag");
+			path + "data/shaders/hello_scene/model.vert",
+			path + "data/shaders/hello_scene/model.frag");
 
 		framebufferShader_ = std::make_unique<Shader>(
-			path + "data/shaders/hello_framebuffer/framebuffer.vert",
-			path + "data/shaders/hello_framebuffer/framebuffer.frag");
+			path + "data/shaders/hello_scene/framebuffer.vert",
+			path + "data/shaders/hello_scene/framebuffer.frag");
 
-		//// Bind uniform to program.
-		//shaders_->Use();
-		//texture_diffuse_->Bind(0);
-		//shaders_->SetInt("Diffuse", 0);
-		//texture_specular_->Bind(1);
-		//shaders_->SetInt("Specular", 1);
+		skyboxShader_ = std::make_unique<Shader>(
+			path + "data/shaders/hello_scene/cubemaps.vert",
+			path + "data/shaders/hello_scene/cubemaps.frag");
 
 		glClearColor(0.82352941f, 0.63137255f, 0.81568627f, 1.0f);
 	}
@@ -142,9 +133,6 @@ namespace gl {
 	{
 		framebuffer_->Bind();
 
-		delta_time_ = dt.count();
-		time_ += delta_time_;
-
 		SetViewMatrix(dt);
 		SetModelMatrix(dt);
 		SetProjectionMatrix();
@@ -165,6 +153,17 @@ namespace gl {
 			glDrawElements(GL_TRIANGLES, mesh_.nb_vertices_, GL_UNSIGNED_INT, 0);
 		}
 
+		// Skybox
+		glDepthFunc(GL_LEQUAL);
+		cubemaps_->Bind();
+		skyboxShader_->Use();
+		skyboxShader_->SetInt("skybox", 0);
+		skyboxShader_->SetMat4("projection", glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f));
+		glm::mat4 view = glm::mat4(glm::mat3(camera_->GetViewMatrix()));
+		skyboxShader_->SetMat4("view", view);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Framebuffer
 		framebuffer_->Unbind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		framebufferShader_->Use();
@@ -172,9 +171,6 @@ namespace gl {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, framebuffer_->GetColorBuffer());
 		framebuffer_->Draw();
-		/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_->ebo_);
-		glBindVertexArray(mesh_->vao_);
-		glDrawElements(GL_TRIANGLES, mesh_->nb_vertices_, GL_UNSIGNED_INT, 0);*/
 	}
 
 	void HelloModel::Destroy()
@@ -183,6 +179,19 @@ namespace gl {
 
 	void HelloModel::OnEvent(SDL_Event& event)
 	{
+		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
+		{
+			glViewport(0, 0, event.window.data1, event.window.data2);
+		}
+		if (event.type == SDL_MOUSEMOTION)
+		{
+			const auto mouse_state = SDL_GetMouseState(nullptr, nullptr);
+			if (mouse_state & SDL_BUTTON(3))
+			{
+				camera_->ProcessMouseMovement(event.motion.xrel, event.motion.yrel, true);
+			}
+		}
+
 		if (event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.sym == SDLK_ESCAPE)
