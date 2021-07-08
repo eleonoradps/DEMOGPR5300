@@ -119,4 +119,4 @@ namespace gl {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	}
-} // namespace gl
+} // End namespace gl

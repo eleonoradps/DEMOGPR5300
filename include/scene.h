@@ -22,13 +22,5 @@ namespace gl
 		int width, height, nrChannels;
 
 		Scene() {}
-
-
-		/*void Bind(unsigned int i = 0) const
-		{
-			glBindVertexArray(vao);
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-		}*/
 	};
 }
