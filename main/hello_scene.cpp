@@ -85,7 +85,7 @@ namespace gl {
 
 
 		std::string path = "../";
-		model_obj_ = std::make_unique<Model>(path + "data/meshes/planet.obj");
+		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
 
 		shaders_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/model.vert",
@@ -191,28 +191,6 @@ namespace gl {
 			if (mouse_state & SDL_BUTTON(3))
 			{
 				camera_->ProcessMouseMovement(event.motion.xrel, event.motion.yrel, true);
-			}
-		}
-
-		if (event.type == SDL_KEYDOWN)
-		{
-			if (event.key.keysym.sym == SDLK_ESCAPE)
-				exit(0);
-			if (event.key.keysym.sym == SDLK_w)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::FORWARD, delta_time_);
-			}
-			if (event.key.keysym.sym == SDLK_s)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::BACKWARD, delta_time_);
-			}
-			if (event.key.keysym.sym == SDLK_a)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::LEFT, delta_time_);
-			}
-			if (event.key.keysym.sym == SDLK_d)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::RIGHT, delta_time_);
 			}
 		}
 	}
