@@ -10,6 +10,8 @@
 #include <glm/glm.hpp>
 
 namespace gl {
+	class Shader; //prototype
+
 	class Model {
 	public:
 		std::vector<Mesh> meshes;
@@ -17,6 +19,8 @@ namespace gl {
 		Model(const std::string& filename);
 
 		Mesh GetMesh(unsigned i);
+
+		void Update(const Shader& shader);
 
 	private:
 		void ParseMaterial(const tinyobj::material_t& material);

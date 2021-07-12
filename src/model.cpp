@@ -1,5 +1,7 @@
 #include "model.h"
 
+#include "shader.h"
+
 namespace gl {
 	Model::Model(const std::string& filename)
 	{
@@ -24,6 +26,24 @@ namespace gl {
 	Mesh Model::GetMesh(unsigned i)
 	{
 		return meshes[i];
+	}
+
+	void Model::Update(const Shader& shader)
+	{
+		// Draws each mesh of model
+		for (const auto& mesh : meshes)
+		{
+			mesh.Bind();
+			const auto& material = materials[mesh.material_index];
+			shader.Use();
+			material.color.Bind(0);
+			shader.SetInt("Diffuse", 0);
+			material.specular.Bind(1);
+			shader.SetInt("Specular", 1);
+			shader.SetFloat("specular_pow", material.specular_pow);
+			shader.SetVec3("specular_vec", material.specular_vec);
+			glDrawElements(GL_TRIANGLES, mesh.nb_vertices_, GL_UNSIGNED_INT, 0);
+		}
 	}
 
 	void Model::ParseMaterial(const tinyobj::material_t& material)

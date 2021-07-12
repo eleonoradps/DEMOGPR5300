@@ -79,7 +79,7 @@ namespace gl {
 	void HelloModel::Init()
 	{
 		glEnable(GL_DEPTH_TEST);
-		camera_ = std::make_unique<Camera>(glm::vec3(.0f, .0f, 30.0f));
+		camera_ = std::make_unique<Camera>(glm::vec3(.0f, .0f, 50.0f));
 		framebuffer_ = std::make_unique<Framebuffer>();
 		cubemaps_ = std::make_unique<Cubemaps>();
 
@@ -140,9 +140,12 @@ namespace gl {
 		SetProjectionMatrix();
 		SetUniformMatrix();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		for (const auto& mesh_ : model_obj_->meshes)
+
+		// Draws each mesh of model
+		model_obj_->Update(*shaders_);
+
+		/*for (const auto& mesh_ : model_obj_->meshes)
 		{
-			// Bind uniform to program.
 			mesh_.Bind();
 			const auto& material = model_obj_->materials[mesh_.material_index];
 			shaders_->Use();
@@ -153,7 +156,7 @@ namespace gl {
 			shaders_->SetFloat("specular_pow", material.specular_pow);
 			shaders_->SetVec3("specular_vec", material.specular_vec);
 			glDrawElements(GL_TRIANGLES, mesh_.nb_vertices_, GL_UNSIGNED_INT, 0);
-		}
+		}*/
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
