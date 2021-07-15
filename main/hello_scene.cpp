@@ -31,7 +31,6 @@ namespace gl {
 		void DrawImGui() override;
 
 	protected:
-		void SetModelMatrix(seconds dt);
 		void SetViewMatrix(seconds dt);
 		void SetProjectionMatrix();
 		void IsError(const std::string& file, int line) const;
@@ -52,14 +51,15 @@ namespace gl {
 		std::unique_ptr<Camera> camera_ = nullptr;
 		std::unique_ptr<Shader> shaders_ = nullptr;
 		std::unique_ptr<Model> model_obj_ = nullptr;
+		std::unique_ptr<Model> model_obj2_ = nullptr;
 		std::unique_ptr<Framebuffer> framebuffer_ = nullptr;
 		std::unique_ptr<Shader> framebufferShader_ = nullptr;
 		std::unique_ptr<Shader> skyboxShader_ = nullptr;
 		std::unique_ptr<Cubemaps> cubemaps_ = nullptr;
 
-		glm::mat4 model_ = glm::mat4(1.0f);
+		/*glm::mat4 model_ = glm::mat4(1.0f);*/
 		glm::mat4 view_ = glm::mat4(1.0f);
-		glm::mat4 inv_model_ = glm::mat4(1.0f);
+		/*glm::mat4 inv_model_ = glm::mat4(1.0f);*/
 		glm::mat4 projection_ = glm::mat4(1.0f);
 	};
 
@@ -86,6 +86,7 @@ namespace gl {
 
 		std::string path = "../";
 		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
+		model_obj2_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
 
 		shaders_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/model.vert",
@@ -100,12 +101,6 @@ namespace gl {
 			path + "data/shaders/hello_scene/cubemaps.frag");
 
 		glClearColor(0.82352941f, 0.63137255f, 0.81568627f, 1.0f);
-	}
-
-	void HelloModel::SetModelMatrix(seconds dt)
-	{
-		model_ = glm::rotate(glm::mat4(1.0f), time_, glm::vec3(0.f, 1.f, 0.f));
-		inv_model_ = glm::transpose(glm::inverse(model_));
 	}
 
 	void HelloModel::SetViewMatrix(seconds dt)
@@ -124,11 +119,9 @@ namespace gl {
 	void HelloModel::SetUniformMatrix() const
 	{
 		shaders_->Use();
-		shaders_->SetMat4("model", model_);
 		shaders_->SetMat4("view", view_);
 		shaders_->SetMat4("projection", projection_);
-		shaders_->SetMat4("inv_model", inv_model_);
-		shaders_->SetVec3("camera_position", camera_->position);
+		shaders_->SetVec3("camera_position", camera_->position);	
 	}
 
 	void HelloModel::Update(seconds dt)
@@ -136,13 +129,16 @@ namespace gl {
 		framebuffer_->Bind();
 
 		SetViewMatrix(dt);
-		SetModelMatrix(dt);
 		SetProjectionMatrix();
 		SetUniformMatrix();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draws each mesh of model
+		model_obj_->SetModelMatrix();
 		model_obj_->Update(*shaders_);
+
+		model_obj2_->SetModelMatrix(glm::vec3(50, 0, 0));
+		model_obj2_->Update(*shaders_);
 
 		/*for (const auto& mesh_ : model_obj_->meshes)
 		{

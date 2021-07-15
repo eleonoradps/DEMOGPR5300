@@ -1,6 +1,7 @@
 #include "model.h"
 
 #include "shader.h"
+#include <glm/ext/matrix_transform.hpp>
 
 namespace gl {
 	Model::Model(const std::string& filename)
@@ -36,14 +37,35 @@ namespace gl {
 			mesh.Bind();
 			const auto& material = materials[mesh.material_index];
 			shader.Use();
+
+			//bind model matrix
+			shader.SetMat4("model", _model);
+			shader.SetMat4("inv_model", _inv_model);
+
+			//bind texture
 			material.color.Bind(0);
 			shader.SetInt("Diffuse", 0);
 			material.specular.Bind(1);
 			shader.SetInt("Specular", 1);
+
+			//set parameters
 			shader.SetFloat("specular_pow", material.specular_pow);
 			shader.SetVec3("specular_vec", material.specular_vec);
+
 			glDrawElements(GL_TRIANGLES, mesh.nb_vertices_, GL_UNSIGNED_INT, 0);
 		}
+	}
+
+	void Model::SetModelMatrix(glm::vec3 position)
+	{
+		//glm::vec3 position = glm::vec3(0, 0, 0); //TODO Stocker cette position dans la classe
+
+		//Sol 1. Stocker dans la classe, et tu assigne la valeurs dans le construtcteur
+		//Sol 2. Stocker dans la classe et de créer une méthode SetPosition(glm::vec3 pos)
+
+		_model = glm::mat4(1.0f);
+		_model = glm::translate(_model, position);
+		_inv_model = glm::transpose(glm::inverse(_model));
 	}
 
 	void Model::ParseMaterial(const tinyobj::material_t& material)

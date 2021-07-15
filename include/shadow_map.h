@@ -52,7 +52,9 @@ namespace gl {
 			glReadBuffer(GL_NONE);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
+			// First render to depth map
+			// Then render scene as normal with shadow mapping
+			
 		}
 	};
 } // End namespace gl.
