@@ -20,7 +20,6 @@
 #include "model.h"
 
 namespace gl {
-
 	class HelloModel : public Program
 	{
 	public:
@@ -52,12 +51,15 @@ namespace gl {
 		std::unique_ptr<Shader> shaders_ = nullptr;
 		std::unique_ptr<Model> model_obj_ = nullptr;
 		std::unique_ptr<Model> model_obj2_ = nullptr;
+		std::unique_ptr<Model> model_obj3_ = nullptr;
+		std::unique_ptr<Model> model_obj4_ = nullptr;
 		std::unique_ptr<Framebuffer> framebuffer_ = nullptr;
 		std::unique_ptr<Shader> framebufferShader_ = nullptr;
 		std::unique_ptr<Shader> skyboxShader_ = nullptr;
 		std::unique_ptr<Cubemaps> cubemaps_ = nullptr;
+		std::unique_ptr<Shader> dirLightShader_ = nullptr;
 
-		/*glm::mat4 model_ = glm::mat4(1.0f);*/
+		glm::mat4 model_ = glm::mat4(1.0f);
 		glm::mat4 view_ = glm::mat4(1.0f);
 		/*glm::mat4 inv_model_ = glm::mat4(1.0f);*/
 		glm::mat4 projection_ = glm::mat4(1.0f);
@@ -79,7 +81,7 @@ namespace gl {
 	void HelloModel::Init()
 	{
 		glEnable(GL_DEPTH_TEST);
-		camera_ = std::make_unique<Camera>(glm::vec3(.0f, .0f, 50.0f));
+		camera_ = std::make_unique<Camera>(glm::vec3(70.0f, 55.0f, 70.0f));
 		framebuffer_ = std::make_unique<Framebuffer>();
 		cubemaps_ = std::make_unique<Cubemaps>();
 
@@ -87,6 +89,8 @@ namespace gl {
 		std::string path = "../";
 		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
 		model_obj2_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
+		model_obj3_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
+		model_obj4_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
 
 		shaders_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/model.vert",
@@ -99,6 +103,10 @@ namespace gl {
 		skyboxShader_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/cubemaps.vert",
 			path + "data/shaders/hello_scene/cubemaps.frag");
+
+		dirLightShader_ = std::make_unique<Shader>(
+			path + "data/shaders/hello_scene/dirlight.vert",
+			path + "data/shaders/hello_scene/dirlight.frag");
 
 		glClearColor(0.82352941f, 0.63137255f, 0.81568627f, 1.0f);
 	}
@@ -134,25 +142,17 @@ namespace gl {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draws each mesh of model
-		model_obj_->SetModelMatrix();
+		model_obj_->SetModelMatrix(glm::vec3(0, 60, 0));
 		model_obj_->Update(*shaders_);
 
-		model_obj2_->SetModelMatrix(glm::vec3(50, 0, 0));
+		model_obj2_->SetModelMatrix(glm::vec3(80, 60, 0));
 		model_obj2_->Update(*shaders_);
 
-		/*for (const auto& mesh_ : model_obj_->meshes)
-		{
-			mesh_.Bind();
-			const auto& material = model_obj_->materials[mesh_.material_index];
-			shaders_->Use();
-			material.color.Bind(0);
-			shaders_->SetInt("Diffuse", 0);
-			material.specular.Bind(1);
-			shaders_->SetInt("Specular", 1);
-			shaders_->SetFloat("specular_pow", material.specular_pow);
-			shaders_->SetVec3("specular_vec", material.specular_vec);
-			glDrawElements(GL_TRIANGLES, mesh_.nb_vertices_, GL_UNSIGNED_INT, 0);
-		}*/
+		model_obj3_->SetModelMatrix(glm::vec3(10, 60, 80));
+		model_obj3_->Update(*shaders_);
+
+		model_obj4_->SetModelMatrix(glm::vec3(80, 60, 80));
+		model_obj4_->Update(*shaders_);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
@@ -172,6 +172,31 @@ namespace gl {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, framebuffer_->GetColorBuffer());
 		framebuffer_->Draw();
+
+		// Directional Light
+		dirLightShader_->Use();
+		dirLightShader_->SetInt("material.diffuse", 0);
+		dirLightShader_->SetInt("material.specular", 1);
+
+		//direction of light source
+		dirLightShader_->SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
+		dirLightShader_->SetVec3("viewPos", camera_->position);
+		
+		//light properties
+		dirLightShader_->SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+		dirLightShader_->SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+		dirLightShader_->SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+		//light material properties
+		dirLightShader_->SetFloat("material.shininess", 32.0f);
+
+		//view/projection transformation
+		dirLightShader_->SetMat4("projection", projection_);
+		dirLightShader_->SetMat4("view", view_);
+
+		//world transformation
+		dirLightShader_->SetMat4("model", model_);
+		
 	}
 
 	void HelloModel::Destroy()
