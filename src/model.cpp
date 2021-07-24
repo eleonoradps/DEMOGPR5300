@@ -44,9 +44,9 @@ namespace gl {
 
 			//bind texture
 			material.color.Bind(0);
-			shader.SetInt("Diffuse", 0);
-			material.specular.Bind(1);
-			shader.SetInt("Specular", 1);
+			shader.SetInt("diffuseMap", 0);
+			material.normal.Bind(1);
+			shader.SetInt("normalMap", 1);
 
 			//set parameters
 			shader.SetFloat("specular_pow", material.specular_pow);
@@ -73,6 +73,7 @@ namespace gl {
 		Material mat{};
 		std::string path = "../data/textures/";
 		mat.color = Texture(path + material.diffuse_texname);
+		mat.normal = Texture(path + material.bump_texname);
 		//mat.specular = Texture(path + material.roughness_texname);
 		//mat.specular_strength = 2.0f;
 		mat.specular_pow = material.shininess;
@@ -106,9 +107,44 @@ namespace gl {
 					attrib.texcoords[2 * idx.texcoord_index + 0];
 				vertex.texture.y =
 					attrib.texcoords[2 * idx.texcoord_index + 1];
+
+				if (v == 2)
+				{
+					//positions
+					glm::vec3 pos1(vertices[vertices.size() - 2].position);
+					glm::vec3 pos2(vertices[vertices.size() - 1].position);
+					glm::vec3 pos3(vertex.position);
+
+					//texture coordinates
+					glm::vec2 uv1(vertices[vertices.size() - 2].texture);
+					glm::vec2 uv2(vertices[vertices.size() - 1].texture);
+					glm::vec2 uv3(vertex.texture);
+
+					//calculate tangent vectors of both triangles
+					glm::vec3 tangent1;
+
+					//calculate first triangle edges and delta uv coords
+					glm::vec3 edge1 = pos2 - pos1;
+					glm::vec3 edge2 = pos3 - pos1;
+					glm::vec2 deltaUV1 = uv2 - uv1;
+					glm::vec2 deltaUV2 = uv3 - uv1;
+
+					float f2 = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+					tangent1.x = f2 * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+					tangent1.y = f2 * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+					tangent1.z = f2 * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+					glm::normalize(tangent1);
+
+					vertices[vertices.size() - 2].tangent = tangent1;
+					vertices[vertices.size() - 1].tangent = tangent1;
+					vertex.tangent = tangent1;
+				}
 				vertices.push_back(vertex);
 				indices.push_back(static_cast<int>(indices.size()));
 			}
+
 			index_offset += fv;
 		}
 		material_id = shape.mesh.material_ids[0];

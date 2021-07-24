@@ -58,6 +58,7 @@ namespace gl {
 		std::unique_ptr<Shader> skyboxShader_ = nullptr;
 		std::unique_ptr<Cubemaps> cubemaps_ = nullptr;
 		std::unique_ptr<Shader> dirLightShader_ = nullptr;
+		std::unique_ptr<Shader> normalMapShader_ = nullptr;
 
 		glm::mat4 model_ = glm::mat4(1.0f);
 		glm::mat4 view_ = glm::mat4(1.0f);
@@ -108,6 +109,10 @@ namespace gl {
 			path + "data/shaders/hello_scene/dirlight.vert",
 			path + "data/shaders/hello_scene/dirlight.frag");
 
+		normalMapShader_ = std::make_unique<Shader>(
+			path + "data/shaders/hello_scene/normalmap.vert",
+			path + "data/shaders/hello_scene/normalmap.frag");
+
 		glClearColor(0.82352941f, 0.63137255f, 0.81568627f, 1.0f);
 	}
 
@@ -129,7 +134,12 @@ namespace gl {
 		shaders_->Use();
 		shaders_->SetMat4("view", view_);
 		shaders_->SetMat4("projection", projection_);
-		shaders_->SetVec3("camera_position", camera_->position);	
+		shaders_->SetVec3("camera_position", camera_->position);
+
+		normalMapShader_->Use();
+		normalMapShader_->SetMat4("view", view_);
+		normalMapShader_->SetMat4("projection", projection_);
+		normalMapShader_->SetVec3("camera_position", camera_->position);
 	}
 
 	void HelloModel::Update(seconds dt)
@@ -143,16 +153,20 @@ namespace gl {
 
 		// Draws each mesh of model
 		model_obj_->SetModelMatrix(glm::vec3(0, 60, 0));
-		model_obj_->Update(*shaders_);
+		//model_obj_->Update(*shaders_);
+		model_obj_->Update(*normalMapShader_);
 
 		model_obj2_->SetModelMatrix(glm::vec3(80, 60, 0));
-		model_obj2_->Update(*shaders_);
+		//model_obj2_->Update(*shaders_);
+		model_obj2_->Update(*normalMapShader_);
 
 		model_obj3_->SetModelMatrix(glm::vec3(10, 60, 80));
-		model_obj3_->Update(*shaders_);
+		//model_obj3_->Update(*shaders_);
+		model_obj3_->Update(*normalMapShader_);
 
 		model_obj4_->SetModelMatrix(glm::vec3(80, 60, 80));
-		model_obj4_->Update(*shaders_);
+		//model_obj4_->Update(*shaders_);
+		model_obj4_->Update(*normalMapShader_);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
@@ -173,29 +187,34 @@ namespace gl {
 		glBindTexture(GL_TEXTURE_2D, framebuffer_->GetColorBuffer());
 		framebuffer_->Draw();
 
-		// Directional Light
-		dirLightShader_->Use();
-		dirLightShader_->SetInt("material.diffuse", 0);
-		dirLightShader_->SetInt("material.specular", 1);
+		//// Directional Light
+		//dirLightShader_->Use();
+		//dirLightShader_->SetInt("material.diffuse", 0);
+		//dirLightShader_->SetInt("material.specular", 1);
 
-		//direction of light source
-		dirLightShader_->SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
-		dirLightShader_->SetVec3("viewPos", camera_->position);
-		
-		//light properties
-		dirLightShader_->SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-		dirLightShader_->SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-		dirLightShader_->SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		////direction of light source
+		//dirLightShader_->SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
+		//dirLightShader_->SetVec3("viewPos", camera_->position);
+		//
+		////light properties
+		//dirLightShader_->SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+		//dirLightShader_->SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+		//dirLightShader_->SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
-		//light material properties
-		dirLightShader_->SetFloat("material.shininess", 32.0f);
+		////light material properties
+		//dirLightShader_->SetFloat("material.shininess", 32.0f);
 
-		//view/projection transformation
-		dirLightShader_->SetMat4("projection", projection_);
-		dirLightShader_->SetMat4("view", view_);
+		////view/projection transformation
+		//dirLightShader_->SetMat4("projection", projection_);
+		//dirLightShader_->SetMat4("view", view_);
 
-		//world transformation
-		dirLightShader_->SetMat4("model", model_);
+		////world transformation
+		//dirLightShader_->SetMat4("model", model_);
+
+		//NormalMap
+		/*normalMapShader_->Use();
+		normalMapShader_->SetInt("diffuseMap", 0);
+		normalMapShader_->SetInt("normalMap", 1);*/
 		
 	}
 
@@ -215,6 +234,28 @@ namespace gl {
 			if (mouse_state & SDL_BUTTON(3))
 			{
 				camera_->ProcessMouseMovement(event.motion.xrel, event.motion.yrel, true);
+			}
+		}
+
+		if (event.type == SDL_KEYDOWN)
+		{
+			if (event.key.keysym.sym == SDLK_ESCAPE)
+				exit(0);
+			if (event.key.keysym.sym == SDLK_w)
+			{
+				camera_->ProcessKeyboard(CameraMovementEnum::FORWARD, delta_time_);
+			}
+			if (event.key.keysym.sym == SDLK_s)
+			{
+				camera_->ProcessKeyboard(CameraMovementEnum::BACKWARD, delta_time_);
+			}
+			if (event.key.keysym.sym == SDLK_a)
+			{
+				camera_->ProcessKeyboard(CameraMovementEnum::LEFT, delta_time_);
+			}
+			if (event.key.keysym.sym == SDLK_d)
+			{
+				camera_->ProcessKeyboard(CameraMovementEnum::RIGHT, delta_time_);
 			}
 		}
 	}

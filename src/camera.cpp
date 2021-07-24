@@ -46,7 +46,7 @@ namespace gl
 
 	void Camera::ProcessKeyboard(CameraMovementEnum direction, float deltaTime)
 	{
-		float velocity = MovementSpeed * deltaTime;
+		float velocity = MovementSpeed * deltaTime * 10;
 		if (direction == CameraMovementEnum::FORWARD)
 			position += front * velocity;
 		if (direction == CameraMovementEnum::BACKWARD)

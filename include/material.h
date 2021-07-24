@@ -7,6 +7,7 @@ namespace gl {
 	public:
 		Texture color;
 		Texture specular;
+		Texture normal;
 		float specular_pow;
 		glm::vec3 specular_vec;
 	};
