@@ -49,10 +49,10 @@ namespace gl {
 
 		std::unique_ptr<Camera> camera_ = nullptr;
 		std::unique_ptr<Shader> shaders_ = nullptr;
-		std::unique_ptr<Model> model_obj_ = nullptr;
+		std::unique_ptr<Model> model_obj_ = nullptr;/*
 		std::unique_ptr<Model> model_obj2_ = nullptr;
 		std::unique_ptr<Model> model_obj3_ = nullptr;
-		std::unique_ptr<Model> model_obj4_ = nullptr;
+		std::unique_ptr<Model> model_obj4_ = nullptr;*/
 		std::unique_ptr<Framebuffer> framebuffer_ = nullptr;
 		std::unique_ptr<Shader> framebufferShader_ = nullptr;
 		std::unique_ptr<Shader> skyboxShader_ = nullptr;
@@ -82,16 +82,16 @@ namespace gl {
 	void HelloModel::Init()
 	{
 		glEnable(GL_DEPTH_TEST);
-		camera_ = std::make_unique<Camera>(glm::vec3(70.0f, 55.0f, 70.0f));
+		camera_ = std::make_unique<Camera>(glm::vec3(0.0f, 10.0f, 0.0f));
 		framebuffer_ = std::make_unique<Framebuffer>();
 		cubemaps_ = std::make_unique<Cubemaps>();
 
 
 		std::string path = "../";
-		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
+		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");/*
 		model_obj2_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
 		model_obj3_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
-		model_obj4_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
+		model_obj4_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");*/
 
 		shaders_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/model.vert",
@@ -131,15 +131,17 @@ namespace gl {
 
 	void HelloModel::SetUniformMatrix() const
 	{
-		shaders_->Use();
+		/*shaders_->Use();
 		shaders_->SetMat4("view", view_);
 		shaders_->SetMat4("projection", projection_);
-		shaders_->SetVec3("camera_position", camera_->position);
+		shaders_->SetVec3("camera_position", camera_->position);*/
 
 		normalMapShader_->Use();
 		normalMapShader_->SetMat4("view", view_);
 		normalMapShader_->SetMat4("projection", projection_);
 		normalMapShader_->SetVec3("camera_position", camera_->position);
+		normalMapShader_->SetVec3("viewPos", camera_->position);
+		normalMapShader_->SetVec3("lightPos",  -0.2f, -1.0f, -0.3f);
 	}
 
 	void HelloModel::Update(seconds dt)
@@ -152,21 +154,25 @@ namespace gl {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draws each mesh of model
-		model_obj_->SetModelMatrix(glm::vec3(0, 60, 0));
-		//model_obj_->Update(*shaders_);
+		/*model_obj_->SetModelMatrix(glm::vec3(0, 60, 0));
+		model_obj_->Update(*dirLightShader_);
+		model_obj_->Update(*normalMapShader_);*/
+
+		model_obj_->SetModelMatrix(glm::vec3(0, 0, 0));
+		//model_obj_->Update(*dirLightShader_);
 		model_obj_->Update(*normalMapShader_);
 
-		model_obj2_->SetModelMatrix(glm::vec3(80, 60, 0));
+		model_obj_->SetModelMatrix(glm::vec3(80, 0, 0));
 		//model_obj2_->Update(*shaders_);
-		model_obj2_->Update(*normalMapShader_);
+		model_obj_->Update(*normalMapShader_);
 
-		model_obj3_->SetModelMatrix(glm::vec3(10, 60, 80));
+		model_obj_->SetModelMatrix(glm::vec3(10, 0, 80));
 		//model_obj3_->Update(*shaders_);
-		model_obj3_->Update(*normalMapShader_);
+		model_obj_->Update(*normalMapShader_);
 
-		model_obj4_->SetModelMatrix(glm::vec3(80, 60, 80));
+		model_obj_->SetModelMatrix(glm::vec3(80, 0, 80));
 		//model_obj4_->Update(*shaders_);
-		model_obj4_->Update(*normalMapShader_);
+		model_obj_->Update(*normalMapShader_);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);

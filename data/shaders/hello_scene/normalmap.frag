@@ -2,6 +2,29 @@
 
 layout (location = 0) out vec4 FragColor;
 
+//struct Material 
+//{
+//	sampler2D diffuse;
+//	sampler2D specular;
+//	float shininess;
+//};
+
+//struct Light 
+//{
+//	vec3 direction;
+//
+//	vec3 ambient;
+//	vec3 diffuse;
+//	vec3 specular;
+//};
+
+in vec3 FragPos;
+in vec3 Normal;
+
+out vec4 color;
+//uniform Material material;
+//uniform Light light;
+
 in vec2 TexCoords;
 in vec3 TangentLightPos;
 in vec3 TangentViewPos;
@@ -29,7 +52,9 @@ void main()
 	vec3 ambient = 0.1 * color;
 
 	//diffuse
-	vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
+	//vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
+	vec3 lightDir = normalize(-TangentLightPos);
+	//float diff = max(dot(normal, lightDir), 0.0);
 	float diff = max(dot(lightDir, normal), 0.0);
 	vec3 diffuse = diff * color;
 
