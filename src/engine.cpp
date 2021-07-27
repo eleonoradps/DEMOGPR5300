@@ -88,7 +88,7 @@ namespace gl {
 				const auto dt = std::chrono::duration_cast<seconds>(start - clock);
 				deltaTime_ = dt.count();
 				float totalTime;
-				float maxTime = 10.0f;
+				float maxTime = 15.0f;
 				totalTime += deltaTime_;
 				clock = start;
 				SDL_Event event;

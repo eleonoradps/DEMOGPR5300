@@ -58,11 +58,6 @@ namespace gl {
 
 	void Model::SetModelMatrix(glm::vec3 position)
 	{
-		//glm::vec3 position = glm::vec3(0, 0, 0); //TODO Stocker cette position dans la classe
-
-		//Sol 1. Stocker dans la classe, et tu assigne la valeurs dans le construtcteur
-		//Sol 2. Stocker dans la classe et de créer une méthode SetPosition(glm::vec3 pos)
-
 		_model = glm::mat4(1.0f);
 		_model = glm::translate(_model, position);
 		_inv_model = glm::transpose(glm::inverse(_model));
@@ -74,8 +69,6 @@ namespace gl {
 		std::string path = "../data/textures/";
 		mat.color = Texture(path + material.diffuse_texname);
 		mat.normal = Texture(path + material.bump_texname);
-		//mat.specular = Texture(path + material.roughness_texname);
-		//mat.specular_strength = 2.0f;
 		mat.specular_pow = material.shininess;
 		mat.specular_vec = glm::vec3(material.specular[0], material.specular[1], material.specular[2]);
 		materials.push_back(mat);
