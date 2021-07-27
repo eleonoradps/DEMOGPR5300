@@ -49,10 +49,7 @@ namespace gl {
 
 		std::unique_ptr<Camera> camera_ = nullptr;
 		std::unique_ptr<Shader> shaders_ = nullptr;
-		std::unique_ptr<Model> model_obj_ = nullptr;/*
-		std::unique_ptr<Model> model_obj2_ = nullptr;
-		std::unique_ptr<Model> model_obj3_ = nullptr;
-		std::unique_ptr<Model> model_obj4_ = nullptr;*/
+		std::unique_ptr<Model> model_obj_ = nullptr;
 		std::unique_ptr<Framebuffer> framebuffer_ = nullptr;
 		std::unique_ptr<Shader> framebufferShader_ = nullptr;
 		std::unique_ptr<Shader> skyboxShader_ = nullptr;
@@ -62,7 +59,6 @@ namespace gl {
 
 		glm::mat4 model_ = glm::mat4(1.0f);
 		glm::mat4 view_ = glm::mat4(1.0f);
-		/*glm::mat4 inv_model_ = glm::mat4(1.0f);*/
 		glm::mat4 projection_ = glm::mat4(1.0f);
 	};
 
@@ -82,16 +78,13 @@ namespace gl {
 	void HelloModel::Init()
 	{
 		glEnable(GL_DEPTH_TEST);
-		camera_ = std::make_unique<Camera>(glm::vec3(0.0f, 10.0f, 0.0f));
+		camera_ = std::make_unique<Camera>(glm::vec3(50.0f, 90.0f, 50.0f));
 		framebuffer_ = std::make_unique<Framebuffer>();
 		cubemaps_ = std::make_unique<Cubemaps>();
 
 
 		std::string path = "../";
-		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");/*
-		model_obj2_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
-		model_obj3_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
-		model_obj4_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");*/
+		model_obj_ = std::make_unique<Model>(path + "data/meshes/mountain.obj");
 
 		shaders_ = std::make_unique<Shader>(
 			path + "data/shaders/hello_scene/model.vert",
@@ -131,11 +124,6 @@ namespace gl {
 
 	void HelloModel::SetUniformMatrix() const
 	{
-		/*shaders_->Use();
-		shaders_->SetMat4("view", view_);
-		shaders_->SetMat4("projection", projection_);
-		shaders_->SetVec3("camera_position", camera_->position);*/
-
 		normalMapShader_->Use();
 		normalMapShader_->SetMat4("view", view_);
 		normalMapShader_->SetMat4("projection", projection_);
@@ -146,33 +134,40 @@ namespace gl {
 
 	void HelloModel::Update(seconds dt)
 	{
+		delta_time_ = dt.count();
 		framebuffer_->Bind();
 
+		float speed = 1.0f;
+		camera_->position += glm::normalize(-camera_->front) * delta_time_ * speed;
 		SetViewMatrix(dt);
 		SetProjectionMatrix();
 		SetUniformMatrix();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Draws each mesh of model
-		/*model_obj_->SetModelMatrix(glm::vec3(0, 60, 0));
-		model_obj_->Update(*dirLightShader_);
-		model_obj_->Update(*normalMapShader_);*/
-
-		model_obj_->SetModelMatrix(glm::vec3(0, 0, 0));
-		//model_obj_->Update(*dirLightShader_);
+		model_obj_->SetModelMatrix(glm::vec3(0, 90, 0));
 		model_obj_->Update(*normalMapShader_);
 
-		model_obj_->SetModelMatrix(glm::vec3(80, 0, 0));
-		//model_obj2_->Update(*shaders_);
+		model_obj_->SetModelMatrix(glm::vec3(80, 90, 0));
 		model_obj_->Update(*normalMapShader_);
 
-		model_obj_->SetModelMatrix(glm::vec3(10, 0, 80));
-		//model_obj3_->Update(*shaders_);
+		model_obj_->SetModelMatrix(glm::vec3(40, 90, 0));
 		model_obj_->Update(*normalMapShader_);
 
-		model_obj_->SetModelMatrix(glm::vec3(80, 0, 80));
-		//model_obj4_->Update(*shaders_);
+		model_obj_->SetModelMatrix(glm::vec3(10, 90, 80));
 		model_obj_->Update(*normalMapShader_);
+
+		model_obj_->SetModelMatrix(glm::vec3(80, 90, 80));
+		model_obj_->Update(*normalMapShader_);
+
+		model_obj_->SetModelMatrix(glm::vec3(-80, 90, 0));
+		model_obj_->Update(*normalMapShader_);
+
+		model_obj_->SetModelMatrix(glm::vec3(-10, 90, -80));
+		model_obj_->Update(*normalMapShader_);
+
+		model_obj_->SetModelMatrix(glm::vec3(-80, 90, -80));
+		model_obj_->Update(*normalMapShader_);
+
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
@@ -192,35 +187,6 @@ namespace gl {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, framebuffer_->GetColorBuffer());
 		framebuffer_->Draw();
-
-		//// Directional Light
-		//dirLightShader_->Use();
-		//dirLightShader_->SetInt("material.diffuse", 0);
-		//dirLightShader_->SetInt("material.specular", 1);
-
-		////direction of light source
-		//dirLightShader_->SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
-		//dirLightShader_->SetVec3("viewPos", camera_->position);
-		//
-		////light properties
-		//dirLightShader_->SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-		//dirLightShader_->SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-		//dirLightShader_->SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-		////light material properties
-		//dirLightShader_->SetFloat("material.shininess", 32.0f);
-
-		////view/projection transformation
-		//dirLightShader_->SetMat4("projection", projection_);
-		//dirLightShader_->SetMat4("view", view_);
-
-		////world transformation
-		//dirLightShader_->SetMat4("model", model_);
-
-		//NormalMap
-		/*normalMapShader_->Use();
-		normalMapShader_->SetInt("diffuseMap", 0);
-		normalMapShader_->SetInt("normalMap", 1);*/
 		
 	}
 
@@ -230,40 +196,6 @@ namespace gl {
 
 	void HelloModel::OnEvent(SDL_Event& event)
 	{
-		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
-		{
-			glViewport(0, 0, event.window.data1, event.window.data2);
-		}
-		if (event.type == SDL_MOUSEMOTION)
-		{
-			const auto mouse_state = SDL_GetMouseState(nullptr, nullptr);
-			if (mouse_state & SDL_BUTTON(3))
-			{
-				camera_->ProcessMouseMovement(event.motion.xrel, event.motion.yrel, true);
-			}
-		}
-
-		if (event.type == SDL_KEYDOWN)
-		{
-			if (event.key.keysym.sym == SDLK_ESCAPE)
-				exit(0);
-			if (event.key.keysym.sym == SDLK_w)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::FORWARD, delta_time_);
-			}
-			if (event.key.keysym.sym == SDLK_s)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::BACKWARD, delta_time_);
-			}
-			if (event.key.keysym.sym == SDLK_a)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::LEFT, delta_time_);
-			}
-			if (event.key.keysym.sym == SDLK_d)
-			{
-				camera_->ProcessKeyboard(CameraMovementEnum::RIGHT, delta_time_);
-			}
-		}
 	}
 
 	void HelloModel::DrawImGui()

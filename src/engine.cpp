@@ -87,10 +87,24 @@ namespace gl {
 				const auto start = std::chrono::system_clock::now();
 				const auto dt = std::chrono::duration_cast<seconds>(start - clock);
 				deltaTime_ = dt.count();
+				float totalTime;
+				float maxTime = 10.0f;
+				totalTime += deltaTime_;
 				clock = start;
 				SDL_Event event;
+
+				if (totalTime > maxTime)
+				{
+					isOpen = false;
+				}
+
 				while (SDL_PollEvent(&event))
 				{
+					if (totalTime > maxTime)
+					{
+						isOpen = false;
+					}
+
 					ImGui_ImplSDL2_ProcessEvent(&event);
 					if (event.type == SDL_QUIT)
 					{

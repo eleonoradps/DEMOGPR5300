@@ -2,22 +2,6 @@
 
 layout (location = 0) out vec4 FragColor;
 
-//struct Material 
-//{
-//	sampler2D diffuse;
-//	sampler2D specular;
-//	float shininess;
-//};
-
-//struct Light 
-//{
-//	vec3 direction;
-//
-//	vec3 ambient;
-//	vec3 diffuse;
-//	vec3 specular;
-//};
-
 in vec3 FragPos;
 in vec3 Normal;
 
